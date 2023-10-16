@@ -2,7 +2,11 @@ require "minitest/autorun"
 require "rbdantic"
 
 class RbdanticTest < Minitest::Test
-  def test_hello
-    assert_equal "hello world", Rbdantic.hi
+  class M1 < Rbdantic::BaseModel
+    field :id, Rbdantic::Field.new
+  end
+
+  def test_1
+    m = M1.new
   end
 end
