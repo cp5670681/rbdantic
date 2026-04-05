@@ -60,6 +60,10 @@ puts user.tags   # => []
 puts user.model_dump
 # => { name: "Alice", email: "alice@example.com", age: 30, tags: [] }
 
+# to_h is an alias for model_dump
+puts user.to_h
+# => { name: "Alice", email: "alice@example.com", age: 30, tags: [] }
+
 # Serialize to JSON
 puts user.model_dump_json
 # => {"name":"Alice","email":"alice@example.com","age":30,"tags":[]}
@@ -797,6 +801,7 @@ rescue Rbdantic::ValidationError => e
 |--------|-------------|
 | `initialize(data = {})` | Create model with validation |
 | `model_dump(**options)` | Convert to Hash |
+| `to_h` | Alias for `model_dump` |
 | `model_dump_json(indent: nil)` | Convert to JSON string |
 | `[name]` | Bracket access for field value |
 | `[name] = value` | Bracket assignment for field value |

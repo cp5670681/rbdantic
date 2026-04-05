@@ -60,6 +60,10 @@ puts user.tags   # => []
 puts user.model_dump
 # => { name: "Alice", email: "alice@example.com", age: 30, tags: [] }
 
+# to_h 是 model_dump 的别名
+puts user.to_h
+# => { name: "Alice", email: "alice@example.com", age: 30, tags: [] }
+
 # 序列化为 JSON
 puts user.model_dump_json
 # => {"name":"Alice","email":"alice@example.com","age":30,"tags":[]}
@@ -797,6 +801,7 @@ rescue Rbdantic::ValidationError => e
 |------|------|
 | `initialize(data = {})` | 创建并验证模型 |
 | `model_dump(**options)` | 转换为 Hash |
+| `to_h` | `model_dump` 的别名 |
 | `model_dump_json(indent: nil)` | 转换为 JSON 字符串 |
 | `[name]` | 括号访问字段值 |
 | `[name] = value` | 括号赋值字段值 |

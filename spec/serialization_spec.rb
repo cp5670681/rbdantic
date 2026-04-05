@@ -17,6 +17,18 @@ RSpec.describe "Serialization" do
       expect(result).to eq({ name: "test", count: 5 })
     end
 
+    it "has to_h alias that returns same result as model_dump" do
+      class ToHModel < Rbdantic::BaseModel
+        field :name, String
+        field :count, Integer, default: 0
+      end
+
+      model = ToHModel.new(name: "test", count: 5)
+
+      expect(model.to_h).to eq(model.model_dump)
+      expect(model.to_h).to eq({ name: "test", count: 5 })
+    end
+
     it "includes fields with default values" do
       class SerializeModel2 < Rbdantic::BaseModel
         field :name, String, default: "unknown"

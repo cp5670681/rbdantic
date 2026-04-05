@@ -10,6 +10,8 @@ module Rbdantic
         Serialization::Dumper.dump(self, **options)
       end
 
+      alias to_h model_dump
+
       def model_dump_json(indent: nil, **options)
         Serialization::JsonSerializer.dump(self, indent: indent, **options)
       end
