@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "rbdantic/version"
+require_relative "rbdantic/base"
 
 module Rbdantic
-  class Error < StandardError; end
-  # Your code goes here...
+  # Root module for Rbdantic
 end

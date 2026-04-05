@@ -7,6 +7,11 @@
 /spec/reports/
 /tmp/
 /.omc/
+/.omx/
+/.claude/
+
+# macOS
+.DS_Store
 
 # rspec failure tracking
 .rspec_status
