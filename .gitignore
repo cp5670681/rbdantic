@@ -10,6 +10,8 @@
 /.omx/
 /.claude/
 
+/.idea/
+
 # macOS
 .DS_Store
 
