@@ -10,6 +10,8 @@ require_relative "types/array"
 require_relative "types/hash"
 require_relative "types/symbol"
 require_relative "types/time"
+require_relative "types/date"
+require_relative "types/datetime"
 require_relative "types/model"
 
 module Rbdantic
@@ -26,7 +28,9 @@ module Rbdantic
         ::Array => Validators::Types::Array,
         ::Hash => Validators::Types::Hash,
         ::Symbol => Validators::Types::Symbol,
-        ::Time => Validators::Types::Time
+        ::Time => Validators::Types::Time,
+        ::Date => Validators::Types::Date,
+        ::DateTime => Validators::Types::DateTime
       }.freeze
 
       def self.validator_class_for(type)

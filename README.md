@@ -614,6 +614,9 @@ config.enabled # => true
 | `Rbdantic::Boolean` | `"true"`, `"yes"`, `"on"`, `"1"`, `1`, `"false"`, `"no"`, `"off"`, `"0"`, `0` |
 | `Array` | String with `split`, any value with `to_a` |
 | `Hash` | Array of pairs, any value with `to_h` |
+| `Time` | ISO8601 String, `Date`, `DateTime`, Unix timestamp (Integer/Float) |
+| `Date` | ISO8601 String, `Time`, `DateTime`, days since epoch (Integer/Float) |
+| `DateTime` | ISO8601 String, `Time`, `Date`, Unix timestamp (Integer/Float) |
 
 ## Validation Errors
 
@@ -649,16 +652,9 @@ end
 | `[Type]` | Array with per-item validation |
 | `Hash` | Key-value hash type |
 | `Time` | Ruby Time type |
+| `Date` | Ruby Date type |
+| `DateTime` | Ruby DateTime type |
 | `Rbdantic::BaseModel` subclass | Nested model validation |
-
-**Note:** Use `Rbdantic::Boolean` for public boolean fields.
-
-```ruby
-class Config < Rbdantic::BaseModel
-  field :enabled, Rbdantic::Boolean
-  field :active, Rbdantic::Boolean, optional: true
-end
-```
 
 ## Format Validation
 

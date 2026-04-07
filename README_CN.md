@@ -614,6 +614,9 @@ config.enabled # => true
 | `Rbdantic::Boolean` | `"true"`, `"yes"`, `"on"`, `"1"`, `1`, `"false"`, `"no"`, `"off"`, `"0"`, `0` |
 | `Array` | 可用 `split` 分割的字符串,任何有 `to_a` 方法的值 |
 | `Hash` | 键值对数组,任何有 `to_h` 方法的值 |
+| `Time` | ISO8601 字符串, `Date`, `DateTime`, Unix 时间戳 (Integer/Float) |
+| `Date` | ISO8601 字符串, `Time`, `DateTime`, 纪元天数 (Integer/Float) |
+| `DateTime` | ISO8601 字符串, `Time`, `Date`, Unix 时间戳 (Integer/Float) |
 
 ## 验证错误
 
@@ -649,16 +652,9 @@ end
 | `[Type]` | 带元素校验的数组 |
 | `Hash` | 键值哈希类型 |
 | `Time` | Ruby Time 类型 |
+| `Date` | Ruby Date 类型 |
+| `DateTime` | Ruby DateTime 类型 |
 | `Rbdantic::BaseModel` 子类 | 嵌套模型验证 |
-
-**注意：** 对外布尔字段统一使用 `Rbdantic::Boolean`。
-
-```ruby
-class Config < Rbdantic::BaseModel
-  field :enabled, Rbdantic::Boolean
-  field :active, Rbdantic::Boolean, optional: true
-end
-```
 
 ## 格式验证
 

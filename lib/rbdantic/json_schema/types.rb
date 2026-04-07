@@ -35,6 +35,10 @@ module Rbdantic
           { "type" => "number" }
         elsif type == ::Time
           { "type" => "string", "format" => "date-time" }
+        elsif type == ::Date
+          { "type" => "string", "format" => "date" }
+        elsif type == ::DateTime
+          { "type" => "string", "format" => "date-time" }
         elsif type == ::Rbdantic::Boolean
           { "type" => "boolean" }
         elsif type == ::Array

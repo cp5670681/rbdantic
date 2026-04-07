@@ -19,6 +19,10 @@ module Rbdantic
           case value
           when ::Time
             value
+          when ::DateTime
+            value.to_time
+          when ::Date
+            value.to_time
           when ::String
             ::Time.iso8601(value)
           when ::Integer, ::Float

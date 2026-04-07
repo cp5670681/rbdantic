@@ -645,3 +645,243 @@ RSpec.describe Rbdantic::Validators::Types::Symbol do
     end
   end
 end
+
+RSpec.describe Rbdantic::Validators::Types::Time do
+  let(:validator_class) { Rbdantic::Validators::Types::Time }
+
+  describe "#validate" do
+    context "with valid Time" do
+      it "returns no errors for Time object" do
+        validator = validator_class.new
+        time = Time.now
+        errors, value = validator.validate(time, ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to eq(time)
+      end
+    end
+
+    context "with type coercion" do
+      it "coerces ISO8601 String to Time" do
+        validator = validator_class.new
+        errors, value = validator.validate("2024-01-15T10:30:00Z", ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Time)
+        expect(value.year).to eq(2024)
+      end
+
+      it "coerces Integer (Unix timestamp) to Time" do
+        validator = validator_class.new
+        errors, value = validator.validate(1_705_312_200, ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Time)
+      end
+
+      it "coerces Float (Unix timestamp) to Time" do
+        validator = validator_class.new
+        errors, value = validator.validate(1_705_312_200.5, ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Time)
+        expect(value.nsec > 0).to be true
+      end
+
+      it "coerces DateTime to Time" do
+        validator = validator_class.new
+        dt = DateTime.new(2024, 1, 15, 10, 30, 0, "+8")
+        errors, value = validator.validate(dt, ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Time)
+        expect(value.year).to eq(2024)
+      end
+
+      it "coerces Date to Time (at midnight)" do
+        validator = validator_class.new
+        date = Date.new(2024, 1, 15)
+        errors, value = validator.validate(date, ["timestamp"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Time)
+        expect(value.hour).to eq(0)
+        expect(value.min).to eq(0)
+      end
+
+      it "returns error for invalid string" do
+        validator = validator_class.new
+        errors, value = validator.validate("not-a-time", ["timestamp"])
+        expect(errors.length).to eq(1)
+        expect(errors.first.type).to eq(:type_error)
+      end
+    end
+  end
+end
+
+RSpec.describe Rbdantic::Validators::Types::Date do
+  let(:validator_class) { Rbdantic::Validators::Types::Date }
+
+  describe "#validate" do
+    context "with valid Date" do
+      it "returns no errors for Date object" do
+        validator = validator_class.new
+        date = Date.new(2024, 1, 15)
+        errors, value = validator.validate(date, ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to eq(date)
+        expect(value.class).to eq(Date)  # not DateTime
+      end
+
+      it "rejects DateTime as Date type (needs coercion)" do
+        validator = validator_class.new
+        dt = DateTime.new(2024, 1, 15, 10, 30, 0)
+        # DateTime should NOT match Date type directly
+        expect(validator.matches_type?(dt)).to be false
+      end
+    end
+
+    context "with type coercion" do
+      it "coerces ISO8601 String to Date" do
+        validator = validator_class.new
+        errors, value = validator.validate("2024-01-15", ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Date)
+        expect(value.year).to eq(2024)
+        expect(value.month).to eq(1)
+        expect(value.day).to eq(15)
+      end
+
+      it "coerces Time to Date" do
+        validator = validator_class.new
+        time = Time.new(2024, 1, 15, 10, 30, 0)
+        errors, value = validator.validate(time, ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Date)
+        expect(value.class).to eq(Date)  # ensure it's pure Date, not DateTime
+        expect(value.year).to eq(2024)
+        expect(value.day).to eq(15)
+      end
+
+      it "coerces DateTime to Date (drops time info)" do
+        validator = validator_class.new
+        dt = DateTime.new(2024, 1, 15, 10, 30, 0, "+8")
+        errors, value = validator.validate(dt, ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Date)
+        expect(value.class).to eq(Date)  # ensure it's pure Date, not DateTime
+        expect(value.year).to eq(2024)
+        expect(value.day).to eq(15)
+        # Time info should be dropped
+        expect(value).not_to respond_to(:hour)
+      end
+
+      it "coerces Integer (days since epoch) to Date" do
+        validator = validator_class.new
+        # 0 days = 1970-01-01
+        errors, value = validator.validate(0, ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Date)
+        expect(value).to eq(Date.new(1970, 1, 1))
+      end
+
+      it "coerces Float (days since epoch) to Date" do
+        validator = validator_class.new
+        # Float is truncated to integer days
+        errors, value = validator.validate(1.5, ["event_date"])
+        expect(errors).to be_empty
+        expect(value).to be_a(Date)
+        # 1.5 days gets truncated to 1 day = 1970-01-02
+        expect(value.year).to eq(1970)
+        expect(value.month).to eq(1)
+        expect(value.day).to eq(2)
+      end
+
+      it "returns error for invalid string" do
+        validator = validator_class.new
+        errors, value = validator.validate("not-a-date", ["event_date"])
+        expect(errors.length).to eq(1)
+        expect(errors.first.type).to eq(:type_error)
+      end
+
+      it "returns error for non-coercible types" do
+        validator = validator_class.new
+        errors, value = validator.validate([1, 2, 3], ["event_date"])
+        expect(errors.length).to eq(1)
+        expect(errors.first.type).to eq(:type_error)
+      end
+    end
+  end
+end
+
+RSpec.describe Rbdantic::Validators::Types::DateTime do
+  let(:validator_class) { Rbdantic::Validators::Types::DateTime }
+
+  describe "#validate" do
+    context "with valid DateTime" do
+      it "returns no errors for DateTime object" do
+        validator = validator_class.new
+        dt = DateTime.new(2024, 1, 15, 10, 30, 0, "+8")
+        errors, value = validator.validate(dt, ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to eq(dt)
+      end
+    end
+
+    context "with type coercion" do
+      it "coerces ISO8601 String to DateTime" do
+        validator = validator_class.new
+        errors, value = validator.validate("2024-01-15T10:30:00+08:00", ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to be_a(DateTime)
+        expect(value.year).to eq(2024)
+        expect(value.hour).to eq(10)
+      end
+
+      it "coerces Time to DateTime" do
+        validator = validator_class.new
+        time = Time.new(2024, 1, 15, 10, 30, 0, "+08:00")
+        errors, value = validator.validate(time, ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to be_a(DateTime)
+        expect(value.year).to eq(2024)
+        expect(value.hour).to eq(10)
+      end
+
+      it "coerces Date to DateTime (at midnight)" do
+        validator = validator_class.new
+        date = Date.new(2024, 1, 15)
+        errors, value = validator.validate(date, ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to be_a(DateTime)
+        expect(value.year).to eq(2024)
+        expect(value.hour).to eq(0)
+        expect(value.min).to eq(0)
+      end
+
+      it "coerces Integer (Unix timestamp) to DateTime" do
+        validator = validator_class.new
+        # 86400 seconds = 1 day
+        errors, value = validator.validate(86_400, ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to be_a(DateTime)
+        expect(value.day).to eq(2)  # 1970-01-02
+      end
+
+      it "coerces Float (Unix timestamp) to DateTime" do
+        validator = validator_class.new
+        errors, value = validator.validate(86_400.5, ["created_at"])
+        expect(errors).to be_empty
+        expect(value).to be_a(DateTime)
+      end
+
+      it "returns error for invalid string" do
+        validator = validator_class.new
+        errors, value = validator.validate("not-a-datetime", ["created_at"])
+        expect(errors.length).to eq(1)
+        expect(errors.first.type).to eq(:type_error)
+      end
+
+      it "returns error for non-coercible types" do
+        validator = validator_class.new
+        errors, value = validator.validate([1, 2, 3], ["created_at"])
+        expect(errors.length).to eq(1)
+        expect(errors.first.type).to eq(:type_error)
+      end
+    end
+  end
+end
